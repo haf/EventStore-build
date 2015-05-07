@@ -54,7 +54,7 @@ WORKDIR /tmp/pkgbase
 RUN tar xf /tmp/esrepo/packages/EventStore-OSS-Linux-v$ES_VERSION.tar.gz && \
     mv EventStore-OSS-Linux-v$ES_VERSION/* ./opt/eventstore && \
     rmdir EventStore-OSS-Linux-v$ES_VERSION/ && \
-    fpm -s dir -t rpm -n EventStore -v $ES_VERSION -a x86_64 -C /tmp/pkgbase .
+    fpm -s dir -t rpm -n EventStore -v $ES_VERSION --iteration 2 -a x86_64 -C /tmp/pkgbase .
 
 VOLUME ["/tmp/home"]
 WORKDIR /tmp/home
