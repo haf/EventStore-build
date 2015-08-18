@@ -1,5 +1,6 @@
 FROM centos:latest
 MAINTAINER Henrik Feldt <henrik@haf.se>
+ENV ITERATION 2
 
 # mono & es build deps
 RUN yum update -y && yum install -y epel-release yum-utils && \
@@ -32,7 +33,7 @@ RUN ./autogen.sh
 RUN make get-monolite-latest
 RUN make EXTERNAL_MCS=${PWD}/mcs/class/lib/monolite/basic.exe
 RUN make install    # DESTDIR=/usr/local
-ENV PKG_CONFIG_PATH /usr/local/lib/pkgconfig
+ENV PKG_CONFIG_PATH /usr/lib/pkgconfig
 RUN pkg-config --cflags monosgen-2 # sanity check after installation
 RUN echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH, PATH: $PATH, Mono Version: $(mono --version)"
 
@@ -54,7 +55,7 @@ WORKDIR /tmp/pkgbase
 RUN tar xf /tmp/esrepo/packages/EventStore-OSS-Linux-v$ES_VERSION.tar.gz && \
     mv EventStore-OSS-Linux-v$ES_VERSION/* ./opt/eventstore && \
     rmdir EventStore-OSS-Linux-v$ES_VERSION/ && \
-    fpm -s dir -t rpm -n eventstore -v $ES_VERSION --iteration 1 -a x86_64 -C /tmp/pkgbase .
+    fpm -s dir -t rpm -n eventstore -v $ES_VERSION --iteration $ITERATION -a x86_64 -C /tmp/pkgbase .
 
 VOLUME ["/tmp/home"]
 WORKDIR /tmp/home
