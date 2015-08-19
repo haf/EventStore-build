@@ -37,6 +37,7 @@ RUN git clone https://github.com/EventStore/EventStore.git /tmp/esrepo
 WORKDIR /tmp/esrepo
 RUN git checkout ab530c0 # origin/unalign branch
 RUN git submodule update --init
+RUN sed -i 's/vNodeSettings[.]MaxMemtableEntryCount [*] 2/vNodeSettings.MaxMemtableEntryCount/g' src/EventStore.Core/ClusterVNode.cs
 COPY package-mono-rhel.sh /tmp/esrepo/scripts/package-mono/package-mono-rhel.sh
 COPY build.sh /tmp/esrepo/build.sh
 COPY build-complement.sh /tmp/esrepo/build-complement.sh
