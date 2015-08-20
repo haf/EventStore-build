@@ -30,12 +30,12 @@ RUN pkg-config --cflags monosgen-2 # sanity check after installation
 RUN echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH, PATH: $PATH, Mono Version: $(mono --version)"
 
 # build es
-ENV ITERATION 4
-ENV ES_VERSION 3.1.0
+ENV ITERATION 0
+ENV ES_VERSION 3.1.1
 
 RUN git clone https://github.com/EventStore/EventStore.git /tmp/esrepo
 WORKDIR /tmp/esrepo
-RUN git checkout ab530c0 # origin/unalign branch
+RUN git checkout 23387f29f9753978ce1df00e465b3b2cb267fc15 # competing-etc branch
 RUN git submodule update --init
 COPY build.sh /tmp/esrepo/build.sh
 COPY build-complement.sh /tmp/esrepo/build-complement.sh
@@ -57,11 +57,6 @@ RUN tar xf /tmp/esrepo/packages/EventStore-OSS-Mono-rhel-v$ES_VERSION.tar.gz && 
     mv EventStore-OSS-Mono-rhel-v$ES_VERSION/* ./opt/eventstore && \
     rmdir EventStore-OSS-Mono-rhel-v$ES_VERSION/ && \
     fpm -s dir -t rpm -n eventstore -v $ES_VERSION --iteration $ITERATION -a x86_64 -C /tmp/pkgbase .
-
-# package unaligner
-RUN xbuild /tmp/esrepo/src/EventStore.sln
-RUN xbuild /tmp/esrepo/src/utils/Unaligner/Unaligner/Unaligner.sln
-RUN cd /tmp/esrepo/src/utils/Unaligner/Unaligner/bin && mv Debug Unaligner && tar czf Unaligner.tar.gz Unaligner && cd /tmp/pkgbase && mv /tmp/esrepo/src/utils/Unaligner/Unaligner/bin/Unaligner.tar.gz .
 
 VOLUME ["/tmp/home"]
 WORKDIR /tmp/home

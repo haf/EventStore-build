@@ -1,6 +1,6 @@
 all: build push
 
-NAME=eventstore-3.1.0-4
+NAME=eventstore-3.1.1-0
 PKG=$(NAME).x86_64.rpm
 
 push: push-gems artifacts
@@ -12,8 +12,7 @@ push-gems:
 artifacts:
 	ID=$(shell docker create $(NAME))
 	PWD=$(shell pwd)
-	docker run -v $(PWD):/tmp/share --rm $(NAME) "-c" 'cp /tmp/pkgbase/$(PKG) /tmp/share'
-	docker run -v $(PWD):/tmp/share --rm $(NAME) "-c" 'cp /tmp/pkgbase/Unaligner.tar.gz /tmp/share/Unaligner.tar.gz'
+	docker run -v $(PWD):/tmp/share --rm $(NAME) "-c" 'cp /tmp/pkgbase/$(PKG) /tmp/share/$(PKG)'
 
 build:
 	docker build -t $(NAME) .
