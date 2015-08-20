@@ -4,19 +4,22 @@ GEM
     colorize (0.6.0)
     highline (1.6.20)
     json_pure (1.8.1)
-    mime-types (2.5)
-    package_cloud (0.2.18)
+    mime-types (2.6.1)
+    package_cloud (0.2.21)
       colorize (= 0.6.0)
       highline (= 1.6.20)
       json_pure (= 1.8.1)
       rest-client (= 1.6.7)
-      thor (= 0.18.1)
+      thor (~> 0.18)
     rest-client (1.6.7)
       mime-types (>= 1.16)
-    thor (0.18.1)
+    thor (0.19.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   package_cloud
+
+BUNDLED WITH
+   1.10.5

@@ -30,21 +30,21 @@ RUN pkg-config --cflags monosgen-2 # sanity check after installation
 RUN echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH, PATH: $PATH, Mono Version: $(mono --version)"
 
 # build es
-ENV ITERATION 3
+ENV ITERATION 4
 ENV ES_VERSION 3.1.0
 
 RUN git clone https://github.com/EventStore/EventStore.git /tmp/esrepo
 WORKDIR /tmp/esrepo
 RUN git checkout ab530c0 # origin/unalign branch
 RUN git submodule update --init
-RUN sed -i 's/vNodeSettings[.]MaxMemtableEntryCount [*] 2/vNodeSettings.MaxMemtableEntryCount/g' src/EventStore.Core/ClusterVNode.cs
-COPY package-mono-rhel.sh /tmp/esrepo/scripts/package-mono/package-mono-rhel.sh
 COPY build.sh /tmp/esrepo/build.sh
 COPY build-complement.sh /tmp/esrepo/build-complement.sh
 COPY build-prepare.sh /tmp/esrepo/build-prepare.sh
 RUN ./build-prepare.sh full $ES_VERSION x64 release
-RUN ./build.sh full $ES_VERSION x64 release
-RUN xbuild src/EventStore.sln /p:Platform="Any CPU" /p:Configuration=release
+RUN sed -i 's/vNodeSettings[.]MaxMemtableEntryCount [*] 2/vNodeSettings.MaxMemtableEntryCount/g' src/EventStore.Core/ClusterVNode.cs
+RUN sed -i 's/MaxEntriesInMemTable[*]2/MaxEntriesInMemTable/g' src/EventStore.Core.Tests/Services/Storage/Transactions/when_rebuilding_index_for_partially_persisted_transaction.cs
+RUN ./build.sh quick $ES_VERSION x64 release
+COPY package-mono-rhel.sh /tmp/esrepo/scripts/package-mono/package-mono-rhel.sh
 RUN ./scripts/package-mono/package-mono-rhel.sh $ES_VERSION
 
 # package es
@@ -55,8 +55,13 @@ RUN mkdir -p /tmp/pkgbase/opt/eventstore
 WORKDIR /tmp/pkgbase
 RUN tar xf /tmp/esrepo/packages/EventStore-OSS-Mono-rhel-v$ES_VERSION.tar.gz && \
     mv EventStore-OSS-Mono-rhel-v$ES_VERSION/* ./opt/eventstore && \
-    rmdir EventStore-OSS-rhel-v$ES_VERSION/ && \
+    rmdir EventStore-OSS-Mono-rhel-v$ES_VERSION/ && \
     fpm -s dir -t rpm -n eventstore -v $ES_VERSION --iteration $ITERATION -a x86_64 -C /tmp/pkgbase .
+
+# package unaligner
+RUN xbuild /tmp/esrepo/src/EventStore.sln
+RUN xbuild /tmp/esrepo/src/utils/Unaligner/Unaligner/Unaligner.sln
+RUN cd /tmp/esrepo/src/utils/Unaligner/Unaligner/bin && mv Debug Unaligner && tar czf Unaligner.tar.gz Unaligner && cd /tmp/pkgbase && mv /tmp/esrepo/src/utils/Unaligner/Unaligner/bin/Unaligner.tar.gz .
 
 VOLUME ["/tmp/home"]
 WORKDIR /tmp/home

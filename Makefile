@@ -1,15 +1,19 @@
-all: docker-build docker-run-copy packagecloud
+all: build push
 
-packagecloud: packagecloud-gems
-	package_cloud push haf/oss/el/7 ./eventstore-3.1.0-4.x86_64.rpm
+NAME=eventstore-3.1.0-4
+PKG=$(NAME).x86_64.rpm
 
-packagecloud-gems:
+push: push-gems artifacts
+	package_cloud push haf/oss/el/7 ./$(PKG)
+
+push-gems:
 	bundle
 
-docker-run-copy:
-	ID=$(shell docker create eventstore-3.1.0-4)
-	docker cp $(ID):/tmp/pkgbase/eventstore-3.1.0-4.x86_64.rpm - > eventstore-3.1.0-4.x86_64.rpm
-	docker rm -v $(ID)
+artifacts:
+	ID=$(shell docker create $(NAME))
+	PWD=$(shell pwd)
+	docker run -v $(PWD):/tmp/share --rm $(NAME) "-c" 'cp /tmp/pkgbase/$(PKG) /tmp/share'
+	docker run -v $(PWD):/tmp/share --rm $(NAME) "-c" 'cp /tmp/pkgbase/Unaligner.tar.gz /tmp/share/Unaligner.tar.gz'
 
-docker-build:
-	docker build -t eventstore-build .
+build:
+	docker build -t $(NAME) .

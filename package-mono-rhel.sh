@@ -50,8 +50,8 @@ cp -r projections $PACKAGEDIRECTORY/
 cp libjs1.$soext $PACKAGEDIRECTORY/
 cp *.dll $PACKAGEDIRECTORY/
 cp *.exe $PACKAGEDIRECTORY/
-cp log.config $PACKAGEDIRECTORY/
-cp $SCRIPTDIR/run-mono-node.sh $PACKAGEDIRECTORY/run-node.sh
+cp NLog.config $PACKAGEDIRECTORY/
+cp $SCRIPTDIR/run-node.sh $PACKAGEDIRECTORY/run-node.sh
 
 popd
 
