@@ -37,9 +37,7 @@ PACKAGENAME="EventStore-OSS-Mono-rhel-v$VERSIONSTRING"
 
 PACKAGEDIRECTORY="$OUTPUTDIR/$PACKAGENAME"
 
-if [[ -d $PACKAGEDIRECTORY ]] ; then
-    rm -rf $PACKAGEDIRECTORY
-fi
+[[ -d $PACKAGEDIRECTORY ]] && rm -rf $PACKAGEDIRECTORY
 mkdir $PACKAGEDIRECTORY
 
 pushd $SCRIPTDIR/../../bin/clusternode/
@@ -50,7 +48,6 @@ cp -r projections $PACKAGEDIRECTORY/
 cp libjs1.$soext $PACKAGEDIRECTORY/
 cp *.dll $PACKAGEDIRECTORY/
 cp *.exe $PACKAGEDIRECTORY/
-cp NLog.config $PACKAGEDIRECTORY/
 cp $SCRIPTDIR/run-node.sh $PACKAGEDIRECTORY/run-node.sh
 
 popd
