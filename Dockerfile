@@ -31,19 +31,16 @@ RUN echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH, PATH: $PATH, Mono Version: $(mono -
 
 # build es
 ENV ITERATION 0
-ENV ES_VERSION 3.1.1
+ENV ES_VERSION 3.2.1
 
 RUN git clone https://github.com/EventStore/EventStore.git /tmp/esrepo
 WORKDIR /tmp/esrepo
-RUN git checkout 23387f29f9753978ce1df00e465b3b2cb267fc15 # competing-etc branch
+RUN git checkout -b tags/oss-v3.2.1 #latest official
 RUN git submodule update --init
-COPY build.sh /tmp/esrepo/build.sh
-COPY build-complement.sh /tmp/esrepo/build-complement.sh
-COPY build-prepare.sh /tmp/esrepo/build-prepare.sh
-RUN ./build-prepare.sh full $ES_VERSION x64 release
 RUN sed -i 's/vNodeSettings[.]MaxMemtableEntryCount [*] 2/vNodeSettings.MaxMemtableEntryCount/g' src/EventStore.Core/ClusterVNode.cs
 RUN sed -i 's/MaxEntriesInMemTable[*]2/MaxEntriesInMemTable/g' src/EventStore.Core.Tests/Services/Storage/Transactions/when_rebuilding_index_for_partially_persisted_transaction.cs
-RUN ./build.sh quick $ES_VERSION x64 release
+RUN ./scripts/build-js1/build-js1-linux.sh werror=no
+RUN ./build.sh $ES_VERSION release
 COPY package-mono-rhel.sh /tmp/esrepo/scripts/package-mono/package-mono-rhel.sh
 RUN ./scripts/package-mono/package-mono-rhel.sh $ES_VERSION
 
